@@ -1,0 +1,20 @@
+{
+    "name": "run01",
+    "base_network": "744706",
+    "structure": "T74_policy",
+    "match_script": "policy_match",
+    "iterations": 2,
+    "rounds": 16,
+    "match_games": 184,
+    "r_end": 0.0085,
+    "adj": 0.005,
+    "elo_average": 20.0,
+    "history_interval": 1,
+    "match_book": "book_4moves_2023_cp-5to+5_95710pos.pgn",
+    "eval_book": "book_4moves_2023_cp-5to+5_95710pos_match_2500pos.pgn",
+    "eval_iterations_games": 5000,
+    "eval_points": [1, 2],
+    "A": 0.0,
+    "alpha": 0.0,
+    "gamma": 0.0
+}
