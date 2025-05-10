@@ -54,12 +54,12 @@ Alternatively, these files were generated with protobuf version 3.20.3 and are i
 
 ## Usage
 Run the training script with required arguments:
-```bash
+
     python3 tune.py --config <CONFIG_PATH>
+
 Example:
-    ```
+
     python3 tune.py --config configs/config_T74.json
-    ```
 The script will:
 - Load the network structure from `net_structure.py` (default: `T74`)
 - Initialize training from a base network (e.g., `744706.pb.gz`)
@@ -125,7 +125,7 @@ Create a `configs/config_T74.json` file with the following content:
 Place this file in the `configs/` directory and reference it with `--config configs/config_T74.json`.
 
 ## Data Files
-- **PGN Books**: Place PGN files (e.g., `book_4moves_2023_cp-5to+5_95710pos.pgn`) in `books/`. These files are licensed under the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License (CC BY-NC-SA 4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0/). You may share and adapt them for non-commercial purposes, provided you credit zz4032 and license derivative works under the same terms. A sample file, `sample_opening_book.pgn`, is included. See [LICENSE_DATA.md](LICENSE_DATA.md) for details.
+- **PGN Books**: Place PGN files (e.g., `book_4moves_2023_cp-5to+5_95710pos.pgn`) in `books/` (download `books.zip` (~6 MB) from [Google Drive](https://drive.google.com/file/d/1Fd2ugdm2BHZjzGXm1V_IpEqJSbDQjedM)). These files are licensed under the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License (CC BY-NC-SA 4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0/). You may share and adapt them for non-commercial purposes, provided you credit zz4032 and license derivative works under the same terms. A sample file, `sample_opening_book.pgn`, is included. See [LICENSE_DATA.md](LICENSE_DATA.md) for details.
 - **Network Files**: Place network files (e.g., `744706.pb.gz`) in `networks/`. These are outputs of LC0 and can be obtained here: http://training.lczero.org/networks/2 (search for `744706`).
 
 ### Running the Script
@@ -156,6 +156,7 @@ python3 tune.py --network-structure 744706
 This generates a table of layers (ID, name, parameter count, standard deviation, max/min values) and saves it to 744706_structure.txt. Use this to define layers in net_structure.py (e.g., T74 structure with (layer_id, c_end) tuples).
 `c_end` should be set to produce an average of absolute match results of 20 Elo for the given layer.
 `*.json` config contains the setting to be used (e.g. `"structure": "T74"`).
+
 3. Run the training script:
 ```
 python3 tune.py --config configs/config_T74.json
@@ -190,8 +191,8 @@ This project is licensed under the GNU General Public License v3.0. See the [LIC
 
 ## GPL-3.0 and CC BY-NC-SA 4.0 Compliance
 - **Code**: Licensed under GPL-3.0. Derivative works must be GPL-3.0 licensed and include source code (`net.py`, `chunk_pb2.py`, `net_pb2.py`). See [LICENSE](LICENSE).
-- **PGN Books and Network Files**: Licensed under CC BY-NC-SA 4.0. Derivative works must be non-commercial, credited to zz4032, and licensed under CC BY-NC-SA 4.0. See [LICENSE_DATA.md](LICENSE_DATA.md).
+- **PGN Books**: Licensed under CC BY-NC-SA 4.0. Derivative works must be non-commercial, credited to zz4032, and licensed under CC BY-NC-SA 4.0. See [LICENSE_DATA.md](LICENSE_DATA.md).
 When distributing the project, ensure compliance with both licenses.
 
 ## Contact
-For questions about the PGN files, network files, or licensing, contact zz4032 via GitHub issues or [your.email@example.com].
+For questions about the PGN files, network files, or licensing, contact zz4032 via GitHub issues or zz4032@users.noreply.github.com.
