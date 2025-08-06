@@ -1,6 +1,7 @@
 {
     "name": "run01",
     "base_network": "744706",
+    "initial_network": "744706",
     "structure": "T74_policy",
     "match_script": "policy_match",
     "iterations": 2,

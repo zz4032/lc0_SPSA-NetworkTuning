@@ -56,8 +56,8 @@ PATH_LOGS = os.path.join(PATH_CURRENT, "logs")
 
 def parse_config_arg():
     parser = argparse.ArgumentParser(description="Neural Network Training with SPSA")
-    parser.add_argument("--config", default="config.json", help="Path to configuration file")
-    parser.add_argument("--network-structure", default=None, help="Network ID to print structure (e.g., 744706)")
+    parser.add_argument("--config", default="config.json", help="Path to configuration file for tuning")
+    parser.add_argument("--network-structure", default=None, help="Printing network structure only (e.g. 744706)")
     return parser.parse_args()
 
 def load_config(config_path: str) -> Dict:
@@ -72,7 +72,7 @@ def load_config(config_path: str) -> Dict:
 def validate_config(config: Dict) -> None:
     """Validate that config contains all required keys and valid values."""
     required_keys = [
-        "name", "base_network", "structure", "match_script", "iterations",
+        "name", "base_network", "initial_network", "structure", "match_script", "iterations",
         "rounds", "match_games", "r_end", "adj", "elo_average", "history_interval",
         "match_book", "eval_book", "eval_iterations_games", "eval_points",
         "A", "alpha", "gamma"
@@ -412,12 +412,14 @@ def get_network_layers(net_proto: pb.Net) -> List[pb.Weights.Layer]:
     recursive_extract(net_proto)
     return layers
 
-def validate_dependencies(match_script: str, match_book: str, eval_book: str, base_network: str) -> None:
+def validate_dependencies(match_script: str, match_book: str, eval_book: str, 
+                          base_network: str, initial_network: str) -> None:
     required_paths = [
         (os.path.join(PATH_MATCH, f"{match_script}.sh"), "Match script"),
         (os.path.join(PATH_BOOKS, match_book), "Match book"),
         (os.path.join(PATH_BOOKS, eval_book), "Eval book"),
         (os.path.join(PATH_NETWORKS, f"{base_network}.pb.gz"), "Base network"),
+        (os.path.join(PATH_NETWORKS, f"{initial_network}.pb.gz"), "Initial network"),
     ]
     for path, desc in required_paths:
         if not os.path.exists(path):
@@ -436,6 +438,7 @@ def main_training_loop(config_path: str) -> None:
         "iterations": ITERATIONS,
         "structure": STRUCTURE,
         "base_network": BASE_NETWORK,
+        "initial_network": INITIAL_NETWORK,
         "match_script": MATCH_SCRIPT,
         "match_games": MATCH_GAMES,
         "rounds": ROUNDS,
@@ -470,7 +473,8 @@ def main_training_loop(config_path: str) -> None:
     result_history = {layer_id: [] for layer_id, _ in total_data}
 
     initial_net = Net()
-    initial_net.parse_proto(f"{PATH_NETWORKS}/{BASE_NETWORK}.pb.gz")
+    initial_net.parse_proto(f"{PATH_NETWORKS}/{INITIAL_NETWORK}.pb.gz")
+    os.system(f"md5sum {PATH_NETWORKS}/{INITIAL_NETWORK}.pb.gz")
     initial_weights = {
         i: initial_net.denorm_layer_v2(layer).copy()
         for i, layer in enumerate(get_network_layers(initial_net.pb))
@@ -501,6 +505,7 @@ def main_training_loop(config_path: str) -> None:
 
             # Running [ROUNDS] number of matches and averaging normalized results
             std_array = np.full_like(weights[layer_id], np.std(weights[layer_id]))
+            logging.debug(f"weights[layer_id] dtype: {weights[layer_id].dtype}, std_array dtype: {std_array.dtype}")
             shifts_list, elo_results, converted_results, draw_rates = [], [], [], []
             for round_idx in range(ROUNDS):
                 shifts = generate_shifts(weights[layer_id].size, iteration, layer_id, round_idx)
@@ -653,6 +658,7 @@ if __name__ == "__main__":
 
     NAME = config.get("name", "run01")
     BASE_NETWORK = config.get("base_network", "744706")
+    INITIAL_NETWORK = config.get("initial_network", "744706")
     STRUCTURE = config.get("structure", "T74_policy")
     MATCH_SCRIPT = config.get("match_script", "policy_match")
     ITERATIONS = config.get("iterations", 50)
@@ -674,7 +680,7 @@ if __name__ == "__main__":
     setup_logging(NAME, LOG_LEVEL)
 
     validate_config(config)
-    validate_dependencies(MATCH_SCRIPT, MATCH_BOOK, EVAL_BOOK, BASE_NETWORK)
+    validate_dependencies(MATCH_SCRIPT, MATCH_BOOK, EVAL_BOOK, BASE_NETWORK, INITIAL_NETWORK)
 
     # Load and validate network structure
     with open("./net_structure.py") as f:
@@ -683,5 +689,5 @@ if __name__ == "__main__":
         logging.error(f"Structure {STRUCTURE} not defined in net_structure.py")
         exit(1)
     total_data = globals()[STRUCTURE]
-    logging.info(f"Starting training from {BASE_NETWORK}")
+    logging.info(f"Starting training from {BASE_NETWORK}, initial network {INITIAL_NETWORK}")
     main_training_loop(config_path=args.config)

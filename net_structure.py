@@ -53,6 +53,7 @@ T74 = (
 )
 
 T74_policy = (
+    # Policy layers only
     (145, 1.812),  # policy, weights
     (156, 0.834),  # policy1, weights
 )
